@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import SetupScreen from "@/components/SetupScreen";
+import RecordingScreen from "@/components/RecordingScreen";
 import type { AppState, TranscribeResponse } from "@/lib/types";
+
+const DURATION_SEC = 120;
 
 export default function Home() {
   const [state, setState] = useState<AppState>("setup");
@@ -24,6 +27,20 @@ export default function Home() {
           setTopic(t);
           setState("recording");
         }}
+      />
+    );
+  }
+
+  if (state === "recording") {
+    return (
+      <RecordingScreen
+        topic={topic}
+        durationSec={DURATION_SEC}
+        onComplete={(blob) => {
+          setAudioBlob(blob);
+          setState("processing");
+        }}
+        onCancel={reset}
       />
     );
   }
