@@ -3,6 +3,7 @@
 import { useState } from "react";
 import SetupScreen from "@/components/SetupScreen";
 import RecordingScreen from "@/components/RecordingScreen";
+import ProcessingScreen from "@/components/ProcessingScreen";
 import type { AppState, TranscribeResponse } from "@/lib/types";
 
 const DURATION_SEC = 120;
@@ -41,6 +42,19 @@ export default function Home() {
           setState("processing");
         }}
         onCancel={reset}
+      />
+    );
+  }
+
+  if (state === "processing" && audioBlob) {
+    return (
+      <ProcessingScreen
+        audio={audioBlob}
+        onComplete={(r) => {
+          setResult(r);
+          setState("results");
+        }}
+        onRetry={reset}
       />
     );
   }
