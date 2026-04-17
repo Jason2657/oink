@@ -1,4 +1,5 @@
 import { DeepgramClient } from "@deepgram/sdk";
+import { analyzeWords } from "@/lib/analyze";
 import type { DeepgramWord, TranscribeResponse } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -54,7 +55,7 @@ export async function POST(req: Request) {
     const body: TranscribeResponse = {
       transcript,
       words,
-      analysis: { oinkCount: 0, missCount: 0, highlights: [] },
+      analysis: analyzeWords(words),
     };
 
     return Response.json(body);
