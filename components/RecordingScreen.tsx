@@ -110,13 +110,11 @@ export default function RecordingScreen({
       cancelled = true;
       cleanup();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Countdown 3-2-1
   useEffect(() => {
     if (phase !== "countdown") return;
-    setCountdown(3);
     countdownIntervalRef.current = setInterval(() => {
       setCountdown((c) => {
         if (c <= 1) {

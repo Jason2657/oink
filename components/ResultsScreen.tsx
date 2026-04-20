@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { Highlight, TranscribeResponse } from "@/lib/types";
 
 interface ResultsScreenProps {
@@ -28,13 +28,11 @@ export default function ResultsScreen({
   onRestart,
 }: ResultsScreenProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [audioUrl, setAudioUrl] = useState<string>("");
+  const audioUrl = useMemo(() => URL.createObjectURL(audio), [audio]);
 
   useEffect(() => {
-    const url = URL.createObjectURL(audio);
-    setAudioUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [audio]);
+    return () => URL.revokeObjectURL(audioUrl);
+  }, [audioUrl]);
 
   const { transcript, words, analysis } = result;
   const { oinkCount, missCount, highlights } = analysis;
