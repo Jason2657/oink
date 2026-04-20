@@ -1,14 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { pickRandomTopic } from "@/lib/topics";
+import { useEffect, useState } from "react";
+import { pickRandomTopic, TOPICS } from "@/lib/topics";
 
 interface SetupScreenProps {
   onStart: (topic: string) => void;
 }
 
 export default function SetupScreen({ onStart }: SetupScreenProps) {
-  const [topic, setTopic] = useState<string>(() => pickRandomTopic());
+  // Start with a deterministic topic so SSR and client markup match,
+  // then randomize after mount.
+  const [topic, setTopic] = useState<string>(TOPICS[0]);
+
+  useEffect(() => {
+    // Deferring the random pick to post-mount avoids SSR/client hydration mismatch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTopic(pickRandomTopic());
+  }, []);
 
   return (
     <div className="flex flex-1 items-center justify-center px-6 py-12">
