@@ -5,13 +5,19 @@ import SetupScreen from "@/components/SetupScreen";
 import RecordingScreen from "@/components/RecordingScreen";
 import ProcessingScreen from "@/components/ProcessingScreen";
 import ResultsScreen from "@/components/ResultsScreen";
-import type { AppState, TranscribeResponse } from "@/lib/types";
-
-const DURATION_SEC = 120;
+import type {
+  AppState,
+  DurationSeconds,
+  TargetWord,
+  TranscribeResponse,
+} from "@/lib/types";
 
 export default function Home() {
   const [state, setState] = useState<AppState>("setup");
   const [topic, setTopic] = useState<string>("");
+  const [targetWord, setTargetWord] = useState<TargetWord>("I");
+  const [durationSeconds, setDurationSeconds] =
+    useState<DurationSeconds>(120);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [result, setResult] = useState<TranscribeResponse | null>(null);
 
@@ -25,6 +31,10 @@ export default function Home() {
   if (state === "setup") {
     return (
       <SetupScreen
+        targetWord={targetWord}
+        onTargetWordChange={setTargetWord}
+        durationSeconds={durationSeconds}
+        onDurationChange={setDurationSeconds}
         onStart={(t) => {
           setTopic(t);
           setState("recording");
@@ -37,7 +47,7 @@ export default function Home() {
     return (
       <RecordingScreen
         topic={topic}
-        durationSec={DURATION_SEC}
+        durationSec={durationSeconds}
         onComplete={(blob) => {
           setAudioBlob(blob);
           setState("processing");

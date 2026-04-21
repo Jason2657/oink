@@ -1,13 +1,46 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import InlinePopover from "@/components/InlinePopover";
 import { pickRandomTopic, TOPICS } from "@/lib/topics";
+import type { DurationSeconds, TargetWord } from "@/lib/types";
 
 interface SetupScreenProps {
+  targetWord: TargetWord;
+  onTargetWordChange: (value: TargetWord) => void;
+  durationSeconds: DurationSeconds;
+  onDurationChange: (value: DurationSeconds) => void;
   onStart: (topic: string) => void;
 }
 
-export default function SetupScreen({ onStart }: SetupScreenProps) {
+const TARGET_WORD_OPTIONS: { label: string; value: TargetWord }[] = [
+  { label: "‘I’", value: "I" },
+  { label: "‘like’", value: "like" },
+  { label: "‘actually’", value: "actually" },
+  { label: "‘basically’", value: "basically" },
+  { label: "‘literally’", value: "literally" },
+];
+
+const DURATION_OPTIONS: { label: string; value: string }[] = [
+  { label: "1 minute", value: "60" },
+  { label: "2 minutes", value: "120" },
+];
+
+function targetDisplay(word: TargetWord): string {
+  return `‘${word}’`;
+}
+
+function durationDisplay(seconds: DurationSeconds): string {
+  return seconds === 60 ? "1 minute" : "2 minutes";
+}
+
+export default function SetupScreen({
+  targetWord,
+  onTargetWordChange,
+  durationSeconds,
+  onDurationChange,
+  onStart,
+}: SetupScreenProps) {
   // Start with a deterministic topic so SSR and client markup match,
   // then randomize after mount.
   const [topic, setTopic] = useState<string>(TOPICS[0]);
@@ -18,13 +51,33 @@ export default function SetupScreen({ onStart }: SetupScreenProps) {
     setTopic(pickRandomTopic());
   }, []);
 
+  const helperTime = durationSeconds === 60 ? "1:00" : "2:00";
+
   return (
     <div className="flex flex-1 items-center justify-center px-6 py-12">
       <div className="w-full max-w-xl flex flex-col gap-10">
         <header className="flex flex-col gap-2">
           <h1 className="text-5xl font-semibold tracking-tight">Oink</h1>
-          <p className="text-lg text-neutral-600">
-            Replace every &ldquo;I&rdquo; with &ldquo;oink&rdquo; for 2 minutes.
+          <p className="text-lg text-neutral-600 leading-relaxed">
+            Replace every{" "}
+            <InlinePopover
+              ariaLabel="Target word"
+              value={targetWord}
+              displayLabel={targetDisplay(targetWord)}
+              options={TARGET_WORD_OPTIONS}
+              onChange={(v) => onTargetWordChange(v as TargetWord)}
+            />{" "}
+            with &ldquo;oink&rdquo; for{" "}
+            <InlinePopover
+              ariaLabel="Duration"
+              value={String(durationSeconds)}
+              displayLabel={durationDisplay(durationSeconds)}
+              options={DURATION_OPTIONS}
+              onChange={(v) =>
+                onDurationChange(Number(v) as DurationSeconds)
+              }
+            />
+            .
           </p>
         </header>
 
@@ -53,7 +106,7 @@ export default function SetupScreen({ onStart }: SetupScreenProps) {
         </button>
 
         <p className="text-xs text-neutral-400 text-center">
-          2:00 recording. Stop early any time.
+          {helperTime} recording. Stop early any time.
         </p>
       </div>
     </div>

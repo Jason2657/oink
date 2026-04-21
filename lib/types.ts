@@ -1,5 +1,9 @@
 export type AppState = "setup" | "recording" | "processing" | "results";
 
+export type TargetWord = "I" | "like" | "actually" | "basically" | "literally";
+
+export type DurationSeconds = 60 | 120;
+
 export interface DeepgramWord {
   word: string;
   start: number;
