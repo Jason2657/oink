@@ -32,4 +32,5 @@ export interface TranscribeResponse {
   transcript: string;
   words: DeepgramWord[];
   analysis: AnalysisResult;
+  targetWord: TargetWord;
 }

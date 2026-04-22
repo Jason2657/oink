@@ -61,6 +61,7 @@ export default function Home() {
     return (
       <ProcessingScreen
         audio={audioBlob}
+        targetWord={targetWord}
         onComplete={(r) => {
           setResult(r);
           setState("results");

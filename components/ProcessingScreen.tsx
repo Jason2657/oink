@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { TranscribeResponse } from "@/lib/types";
+import type { TargetWord, TranscribeResponse } from "@/lib/types";
 
 interface ProcessingScreenProps {
   audio: Blob;
+  targetWord: TargetWord;
   onComplete: (result: TranscribeResponse) => void;
   onRetry: () => void;
 }
 
 export default function ProcessingScreen({
   audio,
+  targetWord,
   onComplete,
   onRetry,
 }: ProcessingScreenProps) {
@@ -23,6 +25,7 @@ export default function ProcessingScreen({
       try {
         const form = new FormData();
         form.append("audio", audio, "recording.webm");
+        form.append("targetWord", targetWord);
         const res = await fetch("/api/transcribe", {
           method: "POST",
           body: form,
@@ -46,7 +49,7 @@ export default function ProcessingScreen({
     return () => {
       cancelled = true;
     };
-  }, [audio, onComplete]);
+  }, [audio, targetWord, onComplete]);
 
   if (error) {
     return (

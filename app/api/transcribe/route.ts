@@ -1,6 +1,25 @@
 import { DeepgramClient } from "@deepgram/sdk";
 import { analyzeWords } from "@/lib/analyze";
-import type { DeepgramWord, TranscribeResponse } from "@/lib/types";
+import type {
+  DeepgramWord,
+  TargetWord,
+  TranscribeResponse,
+} from "@/lib/types";
+
+const VALID_TARGETS: readonly TargetWord[] = [
+  "I",
+  "like",
+  "actually",
+  "basically",
+  "literally",
+];
+
+function parseTargetWord(raw: FormDataEntryValue | null): TargetWord {
+  if (typeof raw === "string" && (VALID_TARGETS as readonly string[]).includes(raw)) {
+    return raw as TargetWord;
+  }
+  return "I";
+}
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -23,6 +42,7 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+    const targetWord = parseTargetWord(form.get("targetWord"));
 
     const buffer = Buffer.from(await audio.arrayBuffer());
 
@@ -55,7 +75,8 @@ export async function POST(req: Request) {
     const body: TranscribeResponse = {
       transcript,
       words,
-      analysis: analyzeWords(words),
+      analysis: analyzeWords(words, targetWord),
+      targetWord,
     };
 
     return Response.json(body);
