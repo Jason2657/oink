@@ -1,6 +1,11 @@
-import type { AnalysisResult, DeepgramWord, Highlight } from "@/lib/types";
+import type {
+  AnalysisResult,
+  DeepgramWord,
+  Highlight,
+  TargetWord,
+} from "@/lib/types";
 
-const MISS_WORDS = new Set([
+const I_WORDS = new Set([
   "i",
   "i'm",
   "i'll",
@@ -12,6 +17,19 @@ const MISS_WORDS = new Set([
   "id",
 ]);
 
+const LIKE_WORDS = new Set(["like", "likes"]);
+const ACTUALLY_WORDS = new Set(["actually"]);
+const BASICALLY_WORDS = new Set(["basically"]);
+const LITERALLY_WORDS = new Set(["literally"]);
+
+const MISS_SETS: Record<TargetWord, Set<string>> = {
+  I: I_WORDS,
+  like: LIKE_WORDS,
+  actually: ACTUALLY_WORDS,
+  basically: BASICALLY_WORDS,
+  literally: LITERALLY_WORDS,
+};
+
 const OINK_WORDS = new Set(["oink", "oinks"]);
 
 function normalize(raw: string): string {
@@ -19,7 +37,11 @@ function normalize(raw: string): string {
   return raw.toLowerCase().replace(/^[^a-z']+|[^a-z']+$/g, "");
 }
 
-export function analyzeWords(words: DeepgramWord[]): AnalysisResult {
+export function analyzeWords(
+  words: DeepgramWord[],
+  targetWord: TargetWord = "I"
+): AnalysisResult {
+  const missSet = MISS_SETS[targetWord];
   const highlights: Highlight[] = [];
   let oinkCount = 0;
   let missCount = 0;
@@ -38,7 +60,7 @@ export function analyzeWords(words: DeepgramWord[]): AnalysisResult {
         type: "oink",
         wordIndex: i,
       });
-    } else if (MISS_WORDS.has(token)) {
+    } else if (missSet.has(token)) {
       missCount += 1;
       highlights.push({
         word: source,
