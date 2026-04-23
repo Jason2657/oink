@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import type { Highlight, TranscribeResponse } from "@/lib/types";
+import type { Highlight, TargetWord, TranscribeResponse } from "@/lib/types";
 
 interface ResultsScreenProps {
   audio: Blob;
@@ -16,9 +16,21 @@ function formatTime(sec: number): string {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-function verdict(oinks: number, misses: number): string {
+const MISS_PLURAL: Record<TargetWord, string> = {
+  I: "'I's",
+  like: "'likes'",
+  actually: "'actuallys'",
+  basically: "'basicallys'",
+  literally: "'literallys'",
+};
+
+function verdict(
+  oinks: number,
+  misses: number,
+  target: TargetWord
+): string {
   if (misses === 0 && oinks > 0) return "Clean run.";
-  if (misses > oinks) return "Oinks got away from you.";
+  if (misses > oinks) return `The ${MISS_PLURAL[target]} got away from you.`;
   return "Watch the misses below.";
 }
 
@@ -34,7 +46,7 @@ export default function ResultsScreen({
     return () => URL.revokeObjectURL(audioUrl);
   }, [audioUrl]);
 
-  const { transcript, words, analysis } = result;
+  const { transcript, words, analysis, targetWord } = result;
   const { oinkCount, missCount, highlights } = analysis;
 
   // Map wordIndex -> Highlight for O(1) lookup while rendering.
@@ -74,11 +86,13 @@ export default function ResultsScreen({
                 {missCount}
               </div>
               <div className="text-sm text-red-800">
-                miss{missCount === 1 ? "" : "es"}
+                missed {MISS_PLURAL[targetWord]}
               </div>
             </div>
           </div>
-          <p className="text-neutral-600">{verdict(oinkCount, missCount)}</p>
+          <p className="text-neutral-600">
+            {verdict(oinkCount, missCount, targetWord)}
+          </p>
         </section>
 
         {/* Transcript */}
